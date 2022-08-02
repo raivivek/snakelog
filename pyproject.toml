@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "snakelog"
+version = "0.1.0"
+description = "Snakemake wrapper for workflow monitoring."
+authors = ["Vivek Rai <mail@raivivek.in>"]
+
+[tool.poetry.scripts]
+snakelog = 'snakelog.cli:launch'
+
+[tool.poetry.dependencies]
+python = "^3.9"
+snakemake = ">=5.0.0"
+python-dateutil = "^2.8.2"
+fire = "^0.4.0"
+tabulate = "^0.8.10"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
