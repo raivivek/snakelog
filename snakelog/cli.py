@@ -70,44 +70,91 @@ def parse_rule_grammar(line, job_dict):
     elif line.startswith("Finished"):
         return {"status": "finished", "jobid": line.strip(".").split()[-1]}
     elif line.startswith("input"):
-        return {"input": [x.strip() for x in line.split(":")[1].split(",")]}
+        parts = line.split(":")
+        if len(parts) > 1 and parts[1].strip():
+            return {"input": [x.strip() for x in parts[1].split(",") if x.strip()]}
+        else:
+            return {"input": []}
     elif line.startswith("output"):
-        return {"output": [x.strip() for x in line.split(":")[1].split(",")]}
+        parts = line.split(":")
+        if len(parts) > 1 and parts[1].strip():
+            return {"output": [x.strip() for x in parts[1].split(",") if x.strip()]}
+        else:
+            return {"output": []}
     elif line.startswith("Error"):
         return {"status": "failed"}
     elif line.startswith("params"):
-        return {
-            "params": {
-                k: v
-                for k, v in [
-                    x.strip().split("=") for x in line.split(":")[1].split(",")
-                ]
-            }
-        }
+        parts = line.split(":")
+        if len(parts) > 1 and parts[1].strip():
+            try:
+                return {
+                    "params": {
+                        k: v
+                        for k, v in [
+                            x.strip().split("=", 1) for x in parts[1].split(",") if "=" in x
+                        ]
+                    }
+                }
+            except ValueError:
+                return {"params": {}}
+        else:
+            return {"params": {}}
     elif line.startswith("wildcards"):
-        return {
-            "wildcards": {
-                k: v
-                for k, v in [
-                    x.strip().split("=") for x in line.split(":")[1].split(",")
-                ]
-            }
-        }
+        parts = line.split(":")
+        if len(parts) > 1 and parts[1].strip():
+            try:
+                return {
+                    "wildcards": {
+                        k: v
+                        for k, v in [
+                            x.strip().split("=", 1) for x in parts[1].split(",") if "=" in x
+                        ]
+                    }
+                }
+            except ValueError:
+                return {"wildcards": {}}
+        else:
+            return {"wildcards": {}}
     elif line.startswith("resources"):
-        return {
-            "resources": {
-                k: v
-                for k, v in [
-                    x.strip().split("=") for x in line.split(":")[1].split(",")
-                ]
-            }
-        }
+        parts = line.split(":")
+        if len(parts) > 1 and parts[1].strip():
+            try:
+                return {
+                    "resources": {
+                        k: v
+                        for k, v in [
+                            x.strip().split("=", 1) for x in parts[1].split(",") if "=" in x
+                        ]
+                    }
+                }
+            except ValueError:
+                return {"resources": {}}
+        else:
+            return {"resources": {}}
     elif line.startswith("jobid"):
-        return {"jobid": int(line.split(":")[1].strip())}
+        parts = line.split(":")
+        if len(parts) > 1 and parts[1].strip():
+            try:
+                return {"jobid": int(parts[1].strip())}
+            except ValueError:
+                return {"jobid": None}
+        else:
+            return {"jobid": None}
     elif line.startswith("log"):
-        return {"log": line.split(":")[1].strip()}
+        parts = line.split(":")
+        if len(parts) > 1:
+            return {"log": parts[1].strip()}
+        else:
+            return {"log": ""}
     elif line.startswith("threads"):
-        return {"threads": int(line.split(":")[1].strip())}
+        parts = line.split(":")
+        if len(parts) > 1 and parts[1].strip():
+            try:
+                return {"threads": int(parts[1].strip())}
+            except ValueError:
+                return {"threads": 1}
+        else:
+            return {"threads": 1}
     elif line.startswith("Submitted"):
         external_jobid = re.findall(r"\d+", line)
         if external_jobid:
